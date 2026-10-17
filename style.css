@@ -1,0 +1,141 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 32px 16px 60px;
+    background-color: #f4f1ec;
+    color: #2b2b2b;
+    font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+main {
+    max-width: 860px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    font-size: 32px;
+    margin: 0 0 4px;
+}
+
+#resumo {
+    text-align: center;
+    color: #8a8478;
+    font-size: 14px;
+    margin: 0 0 24px;
+}
+
+/* ----- grade de cartões ----- */
+#cartoes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: start;
+}
+
+.cartao {
+    background-color: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cabecalho {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 14px;
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.cabecalho h2 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    border-top: 1px solid #f0ece5;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.item input {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.item.feito span {
+    color: #a39d90;
+    text-decoration: line-through;
+}
+
+/* ----- formulário ----- */
+.adicionar {
+    margin-top: 20px;
+    padding: 14px;
+    background-color: #2b2b2b;
+    border-radius: 12px;
+}
+
+.adicionar h2 {
+    margin: 0 0 10px;
+    font-size: 14px;
+    color: #f4f1ec;
+}
+
+.campos {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.campos input {
+    flex: 1 1 200px;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 8px;
+    background-color: #3a3a3a;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+.campos input::placeholder {
+    color: #a8a399;
+}
+
+#botao {
+    padding: 10px 18px;
+    border: 0;
+    border-radius: 8px;
+    background-color: #f2b84b;
+    color: #2b2b2b;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#restaurar {
+    display: block;
+    margin: 18px auto 0;
+    border: 0;
+    background: none;
+    color: #8a8478;
+    font-size: 13px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* telas estreitas: um cartão por linha */
+@media (max-width: 700px) {
+    #cartoes {
+        grid-template-columns: 1fr;
+    }
+}

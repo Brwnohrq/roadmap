@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minha trilha Java</title>
+<style>
+  :root {
+    --bg: #f1f3f6; --card: #ffffff; --text: #1c2330; --muted: #6b7587;
+    --line: #e3e7ee; --row: #f6f8fb; --accent: #2f7d4f; --danger: #c0392b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12151a; --card: #1b2027; --text: #e6eaf1; --muted: #8d97a8;
+      --line: #2a313b; --row: #20262e; --accent: #4cc27f; --danger: #ff7b6b;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    padding: 24px 16px 60px;
+  }
+  main { max-width: 640px; margin: 0 auto; }
+  .card { background: var(--card); border-radius: 14px; padding: 22px; box-shadow: 0 2px 10px rgba(20,30,50,.10); }
+  h1 { font-size: 24px; margin-bottom: 14px; }
+  .barra { height: 12px; background: var(--line); border-radius: 99px; overflow: hidden; }
+  .barra i { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 99px; transition: width .3s; }
+  .resumo { color: var(--muted); font-size: 14px; margin: 6px 0 4px; }
+  .secao { margin-top: 18px; }
+  .secao h2 {
+    font-size: 12px; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--muted); display: flex; justify-content: space-between; margin-bottom: 6px;
+  }
+  .item {
+    display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px;
+    cursor: pointer; font-size: 16px; user-select: none;
+  }
+  .item:nth-child(even) { background: var(--row); }
+  .caixa {
+    width: 20px; height: 20px; flex: none; border: 2px solid var(--muted); border-radius: 5px;
+    display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px;
+  }
+  .feito .caixa { background: var(--accent); border-color: var(--accent); }
+  .feito .caixa::after { content: "✓"; }
+  .feito .titulo { color: var(--muted); text-decoration: line-through; }
+  .titulo { flex: 1; }
+  .apagar {
+    border: 0; background: none; color: var(--muted); font-size: 20px; cursor: pointer;
+    opacity: 0; padding: 0 6px; border-radius: 6px;
+  }
+  .item:hover .apagar, .apagar:focus { opacity: 1; }
+  .apagar:hover { color: var(--danger); }
+  form { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--line); }
+  input {
+    flex: 1 1 160px; padding: 10px 12px; font-size: 15px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--bg); color: var(--text);
+  }
+  button.add {
+    padding: 10px 16px; font-size: 15px; font-weight: 600; border: 0; border-radius: 8px;
+    background: var(--accent); color: #fff; cursor: pointer;
+  }
+  .reset { margin-top: 14px; background: none; border: 0; color: var(--muted); font-size: 13px; cursor: pointer; text-decoration: underline; }
+</style>
+</head>
+<body>
+<main>
+  <div class="card">
+    <h1>Minha trilha Java</h1>
+    <div class="barra"><i id="barra"></i></div>
+    <div class="resumo" id="resumo"></div>
+
+    <div id="lista"></div>
+
+    <form id="form">
+      <input id="novoTitulo" placeholder="Novo tópico (ex: Generics)" required>
+      <input id="novaSecao" placeholder="Seção (ex: Java)" list="secoes" required>
+      <datalist id="secoes"></datalist>
+      <button class="add" type="submit">Adicionar</button>
+    </form>
+    <button class="reset" id="reset" type="button">Restaurar trilha original</button>
+  </div>
+</main>
+
+<script>
+  // ===== EDITE AQUI: sua trilha inicial =====
+  // feito: true  -> já vem marcado
+  const TOPICOS_INICIAIS = [
+    { secao: "Java", titulo: "Classes abstratas", feito: true },
+    { secao: "Java", titulo: "Exceptions", feito: true },
+    { secao: "Java", titulo: "Collections: List e Set", feito: true },
+    { secao: "Java", titulo: "Collections: Map", feito: false },
+    { secao: "Java", titulo: "Interfaces", feito: false },
+    { secao: "Java", titulo: "Enum", feito: false },
+    { secao: "Java", titulo: "Generics", feito: false },
+    { secao: "Java", titulo: "Lambda, Stream e Optional", feito: false },
+
+    { secao: "Banco de dados", titulo: "JDBC básico", feito: true },
+    { secao: "Banco de dados", titulo: "CRUD (SELECT, INSERT, UPDATE)", feito: true },
+    { secao: "Banco de dados", titulo: "JOIN e chave estrangeira", feito: false },
+    { secao: "Banco de dados", titulo: "Transação", feito: false },
+
+    { secao: "Projeto: sistema bancário", titulo: "Cliente: listar, buscar, cadastrar", feito: true },
+    { secao: "Projeto: sistema bancário", titulo: "Depósito e saque", feito: true },
+    { secao: "Projeto: sistema bancário", titulo: "Classe abstrata de conta (2 tipos)", feito: false },
+    { secao: "Projeto: sistema bancário", titulo: "Transferência", feito: false },
+    { secao: "Projeto: sistema bancário", titulo: "Extrato guardado no banco", feito: false },
+    { secao: "Projeto: sistema bancário", titulo: "Menu em loop com Sair", feito: false },
+
+    { secao: "Ferramentas e web", titulo: "Git e .gitignore", feito: false },
+    { secao: "Ferramentas e web", titulo: "Maven", feito: false },
+    { secao: "Ferramentas e web", titulo: "JUnit (testes básicos)", feito: false },
+    { secao: "Ferramentas e web", titulo: "HTTP e REST", feito: false },
+    { secao: "Ferramentas e web", titulo: "Spring Boot", feito: false }
+  ];
+  // ==========================================
+
+  const CHAVE = "roadmap-java-v1";
+  let topicos = carregar();
+
+  function padrao() {
+    return TOPICOS_INICIAIS.map((t, i) => ({ id: i + 1, ...t }));
+  }
+
+  function carregar() {
+    try {
+      const salvo = localStorage.getItem(CHAVE);
+      if (salvo) return JSON.parse(salvo);
+    } catch (e) { /* sem armazenamento: usa o padrão */ }
+    return padrao();
+  }
+
+  function salvar() {
+    try { localStorage.setItem(CHAVE, JSON.stringify(topicos)); } catch (e) { /* ignora */ }
+  }
+
+  function desenhar() {
+    const lista = document.getElementById("lista");
+    lista.textContent = "";
+
+    // agrupa por seção, mantendo a ordem em que aparecem
+    const secoes = [];
+    topicos.forEach(t => { if (!secoes.includes(t.secao)) secoes.push(t.secao); });
+
+    secoes.forEach(nome => {
+      const doGrupo = topicos.filter(t => t.secao === nome);
+      const feitos = doGrupo.filter(t => t.feito).length;
+
+      const bloco = document.createElement("div");
+      bloco.className = "secao";
+
+      const h2 = document.createElement("h2");
+      const nomeEl = document.createElement("span");
+      nomeEl.textContent = nome;
+      const contEl = document.createElement("span");
+      contEl.textContent = feitos + "/" + doGrupo.length;
+      h2.append(nomeEl, contEl);
+      bloco.append(h2);
+
+      doGrupo.forEach(t => {
+        const item = document.createElement("div");
+        item.className = "item" + (t.feito ? " feito" : "");
+        item.dataset.id = t.id;
+
+        const caixa = document.createElement("div");
+        caixa.className = "caixa";
+        const titulo = document.createElement("span");
+        titulo.className = "titulo";
+        titulo.textContent = t.titulo;
+        const apagar = document.createElement("button");
+        apagar.className = "apagar";
+        apagar.type = "button";
+        apagar.title = "Apagar tópico";
+        apagar.textContent = "×";
+
+        item.append(caixa, titulo, apagar);
+        bloco.append(item);
+      });
+      lista.append(bloco);
+    });
+
+    // progresso geral
+    const total = topicos.length;
+    const feitosTotal = topicos.filter(t => t.feito).length;
+    const pct = total ? Math.round((feitosTotal / total) * 100) : 0;
+    document.getElementById("barra").style.width = pct + "%";
+    document.getElementById("resumo").textContent =
+      feitosTotal + " de " + total + " tópicos · " + pct + "%";
+
+    // sugestões de seção no formulário
+    const datalist = document.getElementById("secoes");
+    datalist.textContent = "";
+    secoes.forEach(s => {
+      const op = document.createElement("option");
+      op.value = s;
+      datalist.append(op);
+    });
+  }
+
+  // clique em um item: marca/desmarca. clique no ×: apaga.
+  document.getElementById("lista").addEventListener("click", ev => {
+    const item = ev.target.closest(".item");
+    if (!item) return;
+    const id = Number(item.dataset.id);
+
+    if (ev.target.classList.contains("apagar")) {
+      topicos = topicos.filter(t => t.id !== id);
+    } else {
+      const t = topicos.find(t => t.id === id);
+      t.feito = !t.feito;
+    }
+    salvar();
+    desenhar();
+  });
+
+  document.getElementById("form").addEventListener("submit", ev => {
+    ev.preventDefault();
+    const titulo = document.getElementById("novoTitulo").value.trim();
+    const secao = document.getElementById("novaSecao").value.trim();
+    if (!titulo || !secao) return;
+
+    const proximoId = topicos.reduce((max, t) => Math.max(max, t.id), 0) + 1;
+    topicos.push({ id: proximoId, secao: secao, titulo: titulo, feito: false });
+    salvar();
+    desenhar();
+    document.getElementById("novoTitulo").value = "";
+    document.getElementById("novoTitulo").focus();
+  });
+
+  document.getElementById("reset").addEventListener("click", () => {
+    if (confirm("Voltar para a trilha original? Seu progresso atual será perdido.")) {
+      topicos = padrao();
+      salvar();
+      desenhar();
+    }
+  });
+
+  desenhar();
+</script>
+</body>
+</html>
